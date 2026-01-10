@@ -1,0 +1,269 @@
+---====== Load spawner ======---
+ 
+local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Focuslol666/Utilities/refs/heads/patch-1/Doors/Entity%20Spawner/V2/Source.lua"))()
+ 
+---====== Create entity ======---
+ 
+local entity = spawner.Create({
+	Entity = {
+		Name = "Scary face",
+		Asset = "rbxassetid://12416488515",
+		HeightOffset = 0
+	},
+	Lights = {
+		Flicker = {
+			Enabled = true,
+			Duration = 4
+		},
+		Shatter = true,
+		Repair = false,
+	},
+	Earthquake = {
+		Enabled = false
+	},
+	CameraShake = {
+		Enabled = true,
+		Range = 180,
+		Values = {100, 30, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
+	},
+	Movement = {
+		Speed = 300,
+		Delay = 5,
+		Reversed = false
+	},
+	Rebounding = {
+		Enabled = true,
+		Type = "Ambush", -- "Blitz"
+		Min = 8,
+		Max = 8,
+		Delay = 0
+	},
+	Damage = {
+		Enabled = true,
+		Range = 65,
+		Amount = 125,
+	},
+	Jumpscare = {
+	    Enabled = true,
+	    Face = "rbxassetid://",
+	    FacePosition = UDim2.new(0.5, 0, 0.5, 0),
+	    FaceSize = UDim2.new(0, 150, 0, 150),
+	    BackgroundColor = Color3.new(1, 1, 1), -- Color3.fromRGB
+	    BackgroundColor2 = Color3.new(0, 0, 0), -- Color3.fromRGB
+	    Sound = "rbxassetid://18459521002",
+	    SoundVolume = 5
+	},
+	Achievements = {
+	    Survive = {
+	        Enabled = true,
+	        Once = false,
+	        Title = "Too Scary",
+	        Desc = "Coming from far!",
+	        Reason = "Encounter Scary Face.",
+	        Image = "rbxassetid://",
+	        Prize = {
+                Revives = {
+                    Visible = false,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = false,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
+	    },
+	    Crucifix = {
+	        Enabled = true,
+	        Once = true,
+	        Title = "Get out!",
+	        Desc = "I don't play with you",
+	        Reason = "Use crucifix against Scary",
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = false,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = false,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
+	    },
+	    Death = {
+	        Enabled = false,
+	        Once = false,
+	        Title = "Death Title",
+	        Desc = "Death Description",
+	        Reason = "Death Reason",
+	        Image = "rbxassetid://12309073114",
+	        Prize = {
+                Revives = {
+                    Visible = false,
+                    Amount = 1
+                },
+                Knobs = {
+                    Visible = false,
+                    Amount = 100
+                },
+                Stardust = {
+                    Visible = false,
+                    Amount = 20
+                }
+            }
+	    }
+	},
+	Crucifixion = {
+	    Type = "Guiding", -- "Curious"
+		Enabled = true,
+		Range = 10,
+		Resist = false,
+		Break = true
+	},
+	Death = {
+	    IsolationFloors = false,
+		Type = "Guiding", -- "Curious"
+		Hints = {"You died to Scary Face ...", "To survive him, hide and wait for him to despawn.", "He can rebound up to many times.", "Goodluck next time."},
+        Cause = "Scary face",
+        Floors = {
+            Hotel = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Mines = {
+                Type = "Guiding", -- "Curious"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        },
+        Subfloors = {
+            Backdoor = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Rooms = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            },
+            Outdoors = {
+                Type = "Curious", -- "Guiding"
+		        Hints = {"Death", "Hints", "Go", "Here"},
+                Cause = ""
+            }
+        }
+	}
+})
+ 
+if game:GetService("ReplicatedStorage").GameData.Floor.Value == "Party" then
+ 
+entity.Config.Speed = 485
+ 
+end
+
+---====== Debug entity ======---
+ 
+entity:SetCallback("OnSpawned", function()
+    print("Entity has spawned")
+    -- Chuyển đèn phòng hiện tại sang màu tím
+    local currentRoom = game.Workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]
+    if currentRoom then
+        for _, light in pairs(currentRoom:GetDescendants()) do
+            if light:IsA("Light") then
+                light.Color = Color3.fromRGB(150, 0, 255) -- Màu tím
+            end
+        end
+    end
+end)
+ 
+entity:SetCallback("OnStartMoving", function()
+    print("Entity has started moving")
+end)
+ 
+entity:SetCallback("OnReachNode", function(node)
+    print("Entity has reached node\nName: ".. node.Name.. "\nPosition: ".. node.Position)
+if game.Workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetAttribute("RawName") == "HaltHallway" then
+entity.Config.Damage.Enabled = false
+end
+end)
+ 
+entity:SetCallback("OnEnterRoom", function(room, firstTime)
+    if firstTime == true then
+        print("Entity has entered room: ".. room.Name.. " for the first time")
+        -- Chuyển đèn phòng thực thể vừa vào sang màu tím
+        for _, light in pairs(room:GetDescendants()) do
+            if light:IsA("Light") then
+                light.Color = Color3.fromRGB(150, 0, 255)
+            end
+        end
+    end
+end)
+ 
+entity:SetCallback("OnLookAt", function(lineOfSight)
+	if lineOfSight == true then
+		print("Player is looking at entity")
+	else
+		print("Player view is obstructed by something")
+	end
+end)
+ 
+entity:SetCallback("OnRebounding", function(startOfRebound)
+    if startOfRebound == true then
+        print("Entity has started rebounding")
+	else
+        print("Entity has finished rebounding")
+	end
+end)
+ 
+entity:SetCallback("OnDespawning", function()
+    print("Entity is despawning")
+end)
+ 
+entity:SetCallback("OnDespawned", function()
+    print("Entity has despawned")
+    -- (Tùy chọn) Trả lại màu đèn trắng bình thường khi thực thể biến mất
+    local currentRoom = game.Workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]
+    if currentRoom then
+        for _, light in pairs(currentRoom:GetDescendants()) do
+            if light:IsA("Light") then
+                light.Color = Color3.fromRGB(255, 255, 255)
+            end
+        end
+    end
+end)
+ 
+entity:SetCallback("OnDamagePlayer", function(newHealth)
+	if newHealth == 0 then
+		print("Entity has killed the player")
+	else
+		print("Entity has damaged the player")
+	end
+end)
+ 
+entity:SetCallback("OnCrucified", function(stateResist)
+    print("Entity was crucified")
+    task.wait(3)
+	if stateResist == true then
+	    print("Entity is resisting the crucifixion")
+	else
+		print("The entity has been breaking by the crucifixion")
+	end
+end)
+ 
+---====== Run entity ======---
+ 
+entity:Run()
+
+-- Lưu ý: Bạn cần đảm bảo cue và cue2 đã được định nghĩa ở đâu đó nếu không sẽ lỗi ở dòng dưới
+-- cue:Destroy()
+-- cue2:Destroy()
