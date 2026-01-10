@@ -257,7 +257,3 @@ end)
 ---====== Run entity ======---
  
 entity:Run()
-
--- Lưu ý: Bạn cần đảm bảo cue và cue2 đã được định nghĩa ở đâu đó nếu không sẽ lỗi ở dòng dưới
--- cue:Destroy()
--- cue2:Destroy()
